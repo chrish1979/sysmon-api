@@ -27,4 +27,3 @@ spec:
       jsonPointers:
         - /spec/template/spec/containers/0/readinessProbe
         - /spec/traffic
-        - /spec/template/metadata/name
