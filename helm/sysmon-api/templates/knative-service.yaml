@@ -32,7 +32,7 @@ spec:
     - latestRevision: true
       percent: {{ .Values.canary.trafficPercent }}
     - latestRevision: false
-      revisionName: {{ .Release.Name }}-api-stable
+      revisionName: {{ .Values.canary.stableRevision }}
       percent: {{ sub 100 .Values.canary.trafficPercent }}
     {{- else }}
     - latestRevision: true

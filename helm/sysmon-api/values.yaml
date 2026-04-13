@@ -9,9 +9,9 @@ service:
 domain: sysmon.local
 
 canary:
-  enabled: false
-  tag: 368871c7a8dba23792a80d8b0243db112e78c54e
+  enabled: true
   trafficPercent: 10
+  stableRevision: sysmon-api-api-368871c7
 
 postgres:
   image: postgres:16
