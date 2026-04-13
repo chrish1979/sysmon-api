@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - 'Dockerfile'
 
 jobs:
   build:
@@ -27,3 +30,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/sysmon-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/sysmon-api:${{ github.sha }}
+
+      - name: Update image tag in values.yaml
+        run: |
+          sed -i "s|tag:.*|tag: ${{ github.sha }}|" helm/sysmon-api/values.yaml
+
+      - name: Commit and push updated values.yaml
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: update image tag to ${{ github.sha }}"
+          file_pattern: helm/sysmon-api/values.yaml
