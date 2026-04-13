@@ -26,4 +26,3 @@ spec:
       kind: Service
       jsonPointers:
         - /spec/template/spec/containers/0/readinessProbe
-        - /spec/traffic
