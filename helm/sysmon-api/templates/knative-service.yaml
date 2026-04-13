@@ -1,0 +1,44 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-api
+  annotations:
+    argocd.argoproj.io/sync-options: Skip
+spec:
+  template:
+    metadata:
+      {{- if not .Values.canary.enabled }}
+      name: {{ .Release.Name }}-api-stable
+      {{- end }}
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      containers:
+        - name: sysmon-api
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: DB_HOST
+              value: {{ .Release.Name }}-postgres
+            - name: DB_NAME
+              value: {{ .Values.postgres.database }}
+            - name: DB_USER
+              value: {{ .Values.postgres.user }}
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: postgres-password
+  traffic:
+    {{- if .Values.canary.enabled }}
+    - latestRevision: true
+      percent: {{ .Values.canary.trafficPercent }}
+    - latestRevision: false
+      revisionName: {{ .Release.Name }}-api-stable
+      percent: {{ sub 100 .Values.canary.trafficPercent }}
+    {{- else }}
+    - latestRevision: true
+      percent: 100
+    {{- end }}

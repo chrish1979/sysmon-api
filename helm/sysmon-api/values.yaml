@@ -1,0 +1,21 @@
+image:
+  repository: chrish1979/sysmon-api
+  tag: latest
+  pullPolicy: Always
+
+service:
+  port: 8000
+
+domain: sysmon.local
+
+canary:
+  enabled: false
+  tag: latest
+  trafficPercent: 10
+
+postgres:
+  image: postgres:16
+  database: sysmon
+  user: sysmon
+  password: sysmon
+  storage: 1Gi
