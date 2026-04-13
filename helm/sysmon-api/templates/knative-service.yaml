@@ -2,14 +2,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-api
-  annotations:
-    argocd.argoproj.io/sync-options: Skip
 spec:
   template:
     metadata:
-      {{- if not .Values.canary.enabled }}
-      name: {{ .Release.Name }}-api-stable
-      {{- end }}
+      name: {{ .Release.Name }}-api-{{ .Values.image.tag | trunc 8 | trimSuffix "-" }}
       annotations:
         autoscaling.knative.dev/minScale: "1"
     spec:
