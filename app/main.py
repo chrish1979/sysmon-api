@@ -98,4 +98,4 @@ def disk():
         return {"disk_percent": float(cached), "cached": True}
     value = psutil.disk_usage("/").percent
     set_cache("disk", str(value))
-    return {"disk_percent": value, "cached": False}
+    return {"disk_percent": value, "cached": False}# sysmon-api
