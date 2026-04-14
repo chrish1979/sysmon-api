@@ -10,7 +10,7 @@ domain: sysmon.local
 
 canary:
   enabled: true
-  trafficPercent: 10
+  trafficPercent: 20
   stableRevision: sysmon-api-api-287d053b
 
 postgres:

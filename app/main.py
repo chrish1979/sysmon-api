@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from datetime import datetime, timedelta
 import psutil
 import psycopg2
 import os
 import json
+import random
 
 app = FastAPI()
 
@@ -15,8 +17,19 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "sysmon")
 DB_USER = os.getenv("DB_USER", "sysmon")
 DB_PASS = os.getenv("DB_PASS", "sysmon")
-CACHE_TTL = 30  # seconds
+CACHE_TTL = 30
 VERSION = os.getenv("VERSION", "1.0.0")
+
+# Chaos: set at deploy time via env var, adjustable at runtime via /api/chaos
+_chaos_rate = float(os.getenv("CHAOS_RATE", "0.0"))
+
+class ChaosConfig(BaseModel):
+    rate: float  # 0.0 to 1.0
+
+def maybe_chaos():
+    """Randomly raise a 500 based on current chaos rate."""
+    if _chaos_rate > 0 and random.random() < _chaos_rate:
+        raise HTTPException(status_code=500, detail=f"chaos monkey 🙈 (rate={_chaos_rate})")
 
 def get_conn():
     return psycopg2.connect(
@@ -76,10 +89,23 @@ def health():
         db_status = "ok"
     except Exception as e:
         db_status = str(e)
-    return {"status": "ok", "db": db_status, "version": VERSION}
+    return {"status": "ok", "db": db_status, "version": VERSION, "chaos_rate": _chaos_rate}
+
+@app.get("/api/chaos")
+def get_chaos():
+    return {"chaos_rate": _chaos_rate, "version": VERSION}
+
+@app.post("/api/chaos")
+def set_chaos(config: ChaosConfig):
+    global _chaos_rate
+    if not 0.0 <= config.rate <= 1.0:
+        raise HTTPException(status_code=400, detail="rate must be between 0.0 and 1.0")
+    _chaos_rate = config.rate
+    return {"chaos_rate": _chaos_rate, "message": f"chaos rate set to {_chaos_rate:.0%}"}
 
 @app.get("/api/cpu")
 def cpu():
+    maybe_chaos()
     cached = get_cached("cpu")
     if cached:
         return {"cpu_percent": float(cached), "cached": True, "version": VERSION}
@@ -89,6 +115,7 @@ def cpu():
 
 @app.get("/api/memory")
 def memory():
+    maybe_chaos()
     cached = get_cached("memory")
     if cached:
         return {"memory_percent": float(cached), "cached": True, "version": VERSION}
@@ -98,6 +125,7 @@ def memory():
 
 @app.get("/api/disk")
 def disk():
+    maybe_chaos()
     cached = get_cached("disk")
     if cached:
         return {"disk_percent": float(cached), "cached": True, "version": VERSION}
@@ -107,6 +135,7 @@ def disk():
 
 @app.get("/api/network")
 def network():
+    maybe_chaos()
     cached = get_cached("network")
     if cached:
         data = json.loads(cached)
