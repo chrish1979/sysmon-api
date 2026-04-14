@@ -18,7 +18,8 @@ DB_NAME = os.getenv("DB_NAME", "sysmon")
 DB_USER = os.getenv("DB_USER", "sysmon")
 DB_PASS = os.getenv("DB_PASS", "sysmon")
 CACHE_TTL = 30
-VERSION = os.getenv("VERSION", "1.0.0")
+VERSION = os.getenv("VERSION", "1.4.0")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 
 # Chaos: set at deploy time via env var, adjustable at runtime via /api/chaos
 _chaos_rate = float(os.getenv("CHAOS_RATE", "0.0"))
@@ -89,11 +90,11 @@ def health():
         db_status = "ok"
     except Exception as e:
         db_status = str(e)
-    return {"status": "ok", "db": db_status, "version": VERSION, "chaos_rate": _chaos_rate}
+    return {"status": "ok", "db": db_status, "version": VERSION, "chaos_rate": _chaos_rate, "env": ENVIRONMENT}
 
 @app.get("/api/chaos")
 def get_chaos():
-    return {"chaos_rate": _chaos_rate, "version": VERSION}
+    return {"chaos_rate": _chaos_rate, "version": VERSION, "env": ENVIRONMENT}
 
 @app.post("/api/chaos")
 def set_chaos(config: ChaosConfig):
@@ -108,30 +109,30 @@ def cpu():
     maybe_chaos()
     cached = get_cached("cpu")
     if cached:
-        return {"cpu_percent": float(cached), "cached": True, "version": VERSION}
+        return {"cpu_percent": float(cached), "cached": True, "version": VERSION, "env": ENVIRONMENT}
     value = psutil.cpu_percent(interval=1)
     set_cache("cpu", str(value))
-    return {"cpu_percent": value, "cached": False, "version": VERSION}
+    return {"cpu_percent": value, "cached": False, "version": VERSION, "env": ENVIRONMENT}
 
 @app.get("/api/memory")
 def memory():
     maybe_chaos()
     cached = get_cached("memory")
     if cached:
-        return {"memory_percent": float(cached), "cached": True, "version": VERSION}
+        return {"memory_percent": float(cached), "cached": True, "version": VERSION, "env": ENVIRONMENT}
     value = psutil.virtual_memory().percent
     set_cache("memory", str(value))
-    return {"memory_percent": value, "cached": False, "version": VERSION}
+    return {"memory_percent": value, "cached": False, "version": VERSION, "env": ENVIRONMENT}
 
 @app.get("/api/disk")
 def disk():
     maybe_chaos()
     cached = get_cached("disk")
     if cached:
-        return {"disk_percent": float(cached), "cached": True, "version": VERSION}
+        return {"disk_percent": float(cached), "cached": True, "version": VERSION, "env": ENVIRONMENT}
     value = psutil.disk_usage("/").percent
     set_cache("disk", str(value))
-    return {"disk_percent": value, "cached": False, "version": VERSION}
+    return {"disk_percent": value, "cached": False, "version": VERSION, "env": ENVIRONMENT}
 
 @app.get("/api/network")
 def network():
@@ -152,4 +153,4 @@ def network():
         "bytes_recv_mb": round(net.bytes_recv / 1024 / 1024, 2),
     }
     set_cache("network", json.dumps(data))
-    return {**data, "cached": False, "version": VERSION}
+    return {**data, "cached": False, "version": VERSION, "env": ENVIRONMENT}

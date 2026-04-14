@@ -31,6 +31,8 @@ spec:
               value: {{ .Values.image.tag | trunc 8 | quote }}
             - name: CHAOS_RATE
               value: {{ .Values.chaos.rate | quote }}
+            - name: ENVIRONMENT
+              value: {{ .Release.Namespace | quote }}
   traffic:
     {{- if .Values.canary.enabled }}
     - latestRevision: true
