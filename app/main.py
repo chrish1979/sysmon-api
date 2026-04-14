@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import psutil
 import psycopg2
 import os
+import json
 
 app = FastAPI()
 
@@ -103,3 +104,23 @@ def disk():
     value = psutil.disk_usage("/").percent
     set_cache("disk", str(value))
     return {"disk_percent": value, "cached": False, "version": VERSION}
+
+@app.get("/api/network")
+def network():
+    cached = get_cached("network")
+    if cached:
+        data = json.loads(cached)
+        data["cached"] = True
+        data["version"] = VERSION
+        return data
+    net = psutil.net_io_counters()
+    data = {
+        "bytes_sent": net.bytes_sent,
+        "bytes_recv": net.bytes_recv,
+        "packets_sent": net.packets_sent,
+        "packets_recv": net.packets_recv,
+        "bytes_sent_mb": round(net.bytes_sent / 1024 / 1024, 2),
+        "bytes_recv_mb": round(net.bytes_recv / 1024 / 1024, 2),
+    }
+    set_cache("network", json.dumps(data))
+    return {**data, "cached": False, "version": VERSION}
