@@ -1,0 +1,10 @@
+namespace: staging
+domain: sysmon-staging.local
+canary:
+  enabled: true
+  trafficPercent: 50
+  stableRevision: sysmon-api-api-287d053b
+chaos:
+  rate: "0.0"
+postgres:
+  storage: 1Gi

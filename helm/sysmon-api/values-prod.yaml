@@ -1,0 +1,10 @@
+namespace: prod
+domain: sysmon.local
+canary:
+  enabled: true
+  trafficPercent: 20
+  stableRevision: sysmon-api-api-287d053b
+chaos:
+  rate: "0.0"
+postgres:
+  storage: 5Gi

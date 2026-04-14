@@ -1,0 +1,10 @@
+namespace: dev
+domain: sysmon-dev.local
+canary:
+  enabled: false
+  trafficPercent: 0
+  stableRevision: ""
+chaos:
+  rate: "0.0"
+postgres:
+  storage: 512Mi
