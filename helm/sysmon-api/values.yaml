@@ -11,7 +11,7 @@ domain: sysmon.local
 canary:
   enabled: true
   trafficPercent: 10
-  stableRevision: sysmon-api-api-368871c7
+  stableRevision: sysmon-api-api-db55eb4f
 
 postgres:
   image: postgres:16
