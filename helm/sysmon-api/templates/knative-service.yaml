@@ -27,6 +27,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-postgres-secret
                   key: postgres-password
+            - name: VERSION
+              value: {{ .Values.image.tag | trunc 8 | quote }}
+            - name: CHAOS_RATE
+              value: {{ .Values.chaos.rate | quote }}
   traffic:
     {{- if .Values.canary.enabled }}
     - latestRevision: true

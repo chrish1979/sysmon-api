@@ -6,12 +6,16 @@ image:
 service:
   port: 8000
 
+namespace: default
 domain: sysmon.local
 
 canary:
   enabled: true
   trafficPercent: 20
   stableRevision: sysmon-api-api-287d053b
+
+chaos:
+  rate: "0.0"
 
 postgres:
   image: postgres:16
