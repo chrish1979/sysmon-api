@@ -1,6 +1,6 @@
 image:
   repository: chrish1979/sysmon-api
-  tag: 95dc00dc10cbf77b47c2484dcffba3555b5a5668
+  tag: d261fcaee638a2cfb617565c47bb86a7b7999b38
   pullPolicy: Always
 
 service:
