@@ -1,9 +1,9 @@
 namespace: staging
 domain: sysmon-staging.local
 canary:
-  enabled: false
-  trafficPercent: 0
-  stableRevision: ""
+  enabled: true
+  trafficPercent: 50
+  stableRevision: sysmon-api-staging-api-95dc00dc
 chaos:
   rate: "0.0"
 postgres:
